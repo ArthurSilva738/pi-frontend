@@ -1,0 +1,80 @@
+/* Estilo para desktop bonitão */
+
+.pagina-desktop {
+    
+    padding: 40px;
+    font-family: "Segoe UI", sans-serif;
+  }
+  
+  .topo {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 40px;
+  }
+  
+  .topo h1 {
+    font-size: 2.5rem;
+    color: #333;
+  }
+  
+  .grid-produtos {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+    gap: 24px;
+  }
+  
+  .card-produto {
+    background-color: white;
+    padding: 24px;
+    border-radius: 16px;
+    box-shadow: 0 6px 16px rgba(0, 0, 0, 0.1);
+    transition: transform 0.2s ease;
+  }
+  
+  .card-produto:hover {
+    transform: scale(1.02);
+  }
+  
+  .card-produto h2 {
+    font-size: 1.5rem;
+    color: #1f2937;
+    margin-bottom: 8px;
+  }
+  
+  .categoria {
+    color: #6b7280;
+    font-style: italic;
+    margin-bottom: 8px;
+  }
+  
+  .preco {
+    font-weight: bold;
+    color: #10b981;
+    margin-bottom: 8px;
+  }
+  
+  .status {
+    font-weight: bold;
+    margin-bottom: 16px;
+  }
+  
+  .status.disponivel {
+    color: green;
+  }
+  
+  .status.indisponivel {
+    color: red;
+  }
+  
+  .ingredientes p {
+    margin-bottom: 4px;
+    font-weight: bold;
+    color: #374151;
+  }
+  
+  .ingredientes ul {
+    margin-left: 16px;
+    color: #4b5563;
+  }
+  
