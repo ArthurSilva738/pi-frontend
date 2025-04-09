@@ -21,15 +21,15 @@ export default function CardapioPage() {
       disponivel: false,
     },
   ]);
-  const addProduct = (product) => {
-    setProdutos(product);
+  const addProduct = (produto) => {
+    setProdutos([...produtos, produto]);
   };
 
   return (
     <div className="pagina-desktop">
       <div className="topo">
         <h1>🍔 Painel de Cardápio</h1>
-        <CriarProdutoDialog />
+        <CriarProdutoDialog addProduct={addProduct} />
       </div>
 
       <div className="grid-produtos">

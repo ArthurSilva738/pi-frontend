@@ -7,10 +7,23 @@ import DialogContent from "@mui/material/DialogContent";
 import DialogContentText from "@mui/material/DialogContentText";
 import DialogTitle from "@mui/material/DialogTitle";
 import InputAdornment from "@mui/material/InputAdornment";
-import { FormControl, FormHelperText, MenuItem, Select } from "@mui/material";
+import AddIcon from "@mui/icons-material/Add";
 
-export default function CriarProdutoDialog() {
+import {
+  Box,
+  Chip,
+  FormControl,
+  FormHelperText,
+  IconButton,
+  MenuItem,
+  Select,
+  Stack,
+} from "@mui/material";
+
+export default function CriarProdutoDialog(props) {
+  const { addProduct } = props;
   const [categoria, setCategoria] = useState("");
+  const [ingredientes, setIngredientes] = useState([]);
 
   const [open, setOpen] = useState(false);
   const categorias = [
@@ -25,6 +38,19 @@ export default function CriarProdutoDialog() {
     "Bebidas",
   ];
 
+  const criarProduto = (event) => {
+    event.preventDefault();
+
+    const formData = new FormData(event.currentTarget);
+    const nome = formData.get("nome");
+    const preco = formData.get("preco");
+
+    addProduct({ nome, preco, categoria, ingredientes });
+    setIngredientes([]);
+
+    handleClose();
+  };
+
   const handleChange = (event) => {
     setCategoria(event.target.value);
   };
@@ -36,12 +62,25 @@ export default function CriarProdutoDialog() {
   const handleClose = () => {
     setOpen(false);
   };
+  const handleDelete = (ingredienteSelecionado) => {
+    const novosIngredientes = ingredientes.filter(
+      (ingrediente) => ingrediente !== ingredienteSelecionado
+    );
+    setIngredientes(novosIngredientes);
+  };
+
+  const handleCreate = () => {
+    const ingrediente = document.getElementById("ingrediente");
+    setIngredientes([...ingredientes, ingrediente.value]);
+    ingrediente.value = "";
+  };
 
   return (
     <>
       <Button variant="outlined" onClick={handleClickOpen}>
         Criar Produto
       </Button>
+
       <Dialog
         sx={{ "& .MuiDialog-paper": { minWidth: 600 } }}
         open={open}
@@ -49,63 +88,111 @@ export default function CriarProdutoDialog() {
         slotProps={{
           paper: {
             component: "form",
-            onSubmit: (event) => {
-              event.preventDefault();
-              const formData = new FormData(event.currentTarget);
-              const formJson = Object.fromEntries(formData.entries());
-              const email = formJson.email;
-              console.log(email);
-              handleClose();
-            },
+            onSubmit: criarProduto,
           },
         }}
       >
         <DialogTitle>Criar Produto</DialogTitle>
         <DialogContent>
-          <DialogContentText>Insira detalhes do produto </DialogContentText>
-          Nome:
-          <TextField
-            required
-            id="name"
-            name="nome"
-            placeholder="ex: pão de alho"
-            type="text"
-            fullWidth
-            variant="outlined"
-          />
-          Preço:
-          <TextField
-            required
-            id="preco"
-            name="preco"
-            placeholder="ex: 15,50"
-            type=""
-            fullWidth
-            variant="outlined"
-            slotProps={{
-              input: {
-                startAdornment: (
-                  <InputAdornment position="start">R$</InputAdornment>
-                ),
-              },
-            }}
-          />
-          Categoria:
-          <FormControl sx={{ m: 1, minWidth: 120 }}>
-            <Select
-              value={categoria}
-              onChange={handleChange}
-              displayEmpty
-              inputProps={{ "aria-label": "Without label" }}
-            >
-              <MenuItem value="">
-                <em>Selecione a Categoria</em>
-              </MenuItem>
-              {categorias.map((categoria) => (
-                <MenuItem value={categoria}>{categoria}</MenuItem>
-              ))}
-            </Select>
-          </FormControl>
+          <Stack spacing={1.5}>
+            {" "}
+            <DialogContentText>Insira detalhes do produto </DialogContentText>
+            <div>
+              Nome:
+              <TextField
+                sx={{ marginTop: 0.5 }}
+                required
+                id="name"
+                name="nome"
+                placeholder="ex: pão de alho"
+                type="text"
+                fullWidth
+                variant="outlined"
+              />
+            </div>
+            <div>
+              Preço:
+              <TextField
+                sx={{ marginTop: 0.5 }}
+                required
+                id="preco"
+                name="preco"
+                placeholder="ex: 15,50"
+                type=""
+                fullWidth
+                variant="outlined"
+                slotProps={{
+                  input: {
+                    startAdornment: (
+                      <InputAdornment position="start">R$</InputAdornment>
+                    ),
+                  },
+                }}
+              />
+            </div>
+            <div>
+              Categoria:
+              <Box sx={{ width: "100%", marginTop: 0.5 }}>
+                <FormControl sx={{ width: "100%" }}>
+                  <Select
+                    fullWidth
+                    value={categoria}
+                    onChange={handleChange}
+                    displayEmpty
+                    inputProps={{ "aria-label": "Without label" }}
+                  >
+                    <MenuItem value="">
+                      <em>Selecione a Categoria</em>
+                    </MenuItem>
+                    {categorias.map((categoria) => (
+                      <MenuItem value={categoria}>{categoria}</MenuItem>
+                    ))}
+                  </Select>
+                </FormControl>
+              </Box>
+            </div>
+            <div>
+              Ingredientes:
+              <TextField
+                sx={{ marginTop: 0.5 }}
+                id="ingrediente"
+                name="ingrediente"
+                placeholder="Pão"
+                type=""
+                fullWidth
+                variant="outlined"
+                slotProps={{
+                  input: {
+                    endAdornment: (
+                      <InputAdornment position="end">
+                        {" "}
+                        <Button
+                          aria-label="create"
+                          sx={{ color: "#1976d2" }}
+                          onClick={handleCreate}
+                        >
+                          {" "}
+                          <AddIcon sx={{ mr: 1 }} />
+                          Adicionar
+                        </Button>{" "}
+                      </InputAdornment>
+                    ),
+                  },
+                }}
+              />
+            </div>
+            <div>
+              <Box display="flex" gap={1} flexWrap="wrap">
+                {ingredientes.map((ingrediente) => (
+                  <Chip
+                    label={ingrediente}
+                    variant="outlined"
+                    onDelete={() => handleDelete(ingrediente)}
+                  />
+                ))}
+              </Box>{" "}
+            </div>
+          </Stack>
         </DialogContent>
 
         <DialogActions>
