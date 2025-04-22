@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import Button from "@mui/material/Button";
 import TextField from "@mui/material/TextField";
 import Dialog from "@mui/material/Dialog";
@@ -9,22 +9,24 @@ import DialogTitle from "@mui/material/DialogTitle";
 import InputAdornment from "@mui/material/InputAdornment";
 import AddIcon from "@mui/icons-material/Add";
 
-import {
-  Box,
-  Chip,
-  FormControl,
-  FormHelperText,
-  IconButton,
-  MenuItem,
-  Select,
-  Stack,
-} from "@mui/material";
-import { gerarId } from "../../../../../utils/gerarid";
+import { Box, Chip, FormControl, MenuItem, Select, Stack } from "@mui/material";
 
-export default function CriarProdutoDialog(propriedades) {
-  const { addProduct, open, handleClose } = propriedades;
+export default function EditarProdutoDialog(propriedades) {
+  const { addProduct, open, handleClose, produtos } = propriedades;
   const [categoria, setCategoria] = useState("");
   const [ingredientes, setIngredientes] = useState([]);
+
+  useEffect(() => {
+    const produtoId = new URLSearchParams(window.location.search).get(
+      "editar-produto"
+    );
+
+    const produtoEncontrado = produtos.find(
+      (produto) => produto.id == produtoId
+    );
+
+    console.log(produtoEncontrado);
+  }, [open]); // só executa ao montar
 
   const categorias = [
     "Carnes",
@@ -45,7 +47,7 @@ export default function CriarProdutoDialog(propriedades) {
     const nome = formData.get("nome");
     const preco = formData.get("preco");
 
-    addProduct({ nome, preco, categoria, ingredientes, id: gerarId() });
+    addProduct({ nome, preco, categoria, ingredientes });
     setIngredientes([]);
 
     handleClose();
@@ -80,7 +82,7 @@ export default function CriarProdutoDialog(propriedades) {
         },
       }}
     >
-      <DialogTitle>Criar Produto</DialogTitle>
+      <DialogTitle>Editar Produto</DialogTitle>
       <DialogContent>
         <Stack spacing={1.5}>
           {" "}
