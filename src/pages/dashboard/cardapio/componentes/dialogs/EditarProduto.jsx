@@ -12,9 +12,10 @@ import AddIcon from "@mui/icons-material/Add";
 import { Box, Chip, FormControl, MenuItem, Select, Stack } from "@mui/material";
 
 export default function EditarProdutoDialog(propriedades) {
-  const { addProduct, open, handleClose, produtos } = propriedades;
+  const { editProduct, open, handleClose, produtos } = propriedades;
   const [categoria, setCategoria] = useState("");
   const [ingredientes, setIngredientes] = useState([]);
+  const [produto, setProduto] = useState({});
 
   useEffect(() => {
     const produtoId = new URLSearchParams(window.location.search).get(
@@ -25,8 +26,12 @@ export default function EditarProdutoDialog(propriedades) {
       (produto) => produto.id == produtoId
     );
 
+    setProduto(produtoEncontrado);
+    setIngredientes(produtoEncontrado.ingredientes);
+    setCategoria(produtoEncontrado.categoria);
+
     console.log(produtoEncontrado);
-  }, [open]); // só executa ao montar
+  }, [open]);
 
   const categorias = [
     "Carnes",
@@ -40,14 +45,15 @@ export default function EditarProdutoDialog(propriedades) {
     "Bebidas",
   ];
 
-  const criarProduto = (event) => {
+  const editarProduto = (event) => {
     event.preventDefault();
 
     const formData = new FormData(event.currentTarget);
     const nome = formData.get("nome");
     const preco = formData.get("preco");
+    const id = produto.id;
 
-    addProduct({ nome, preco, categoria, ingredientes });
+    editProduct({ nome, preco, categoria, ingredientes, id });
     setIngredientes([]);
 
     handleClose();
@@ -78,7 +84,7 @@ export default function EditarProdutoDialog(propriedades) {
       slotProps={{
         paper: {
           component: "form",
-          onSubmit: criarProduto,
+          onSubmit: editarProduto,
         },
       }}
     >
@@ -94,7 +100,7 @@ export default function EditarProdutoDialog(propriedades) {
               required
               id="name"
               name="nome"
-              placeholder="ex: pão de alho"
+              defaultValue={produto.nome}
               type="text"
               fullWidth
               variant="outlined"
@@ -107,7 +113,7 @@ export default function EditarProdutoDialog(propriedades) {
               required
               id="preco"
               name="preco"
-              placeholder="ex: 15,50"
+              defaultValue={produto.preco}
               type=""
               fullWidth
               variant="outlined"

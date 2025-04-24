@@ -15,7 +15,7 @@ export default function CardapioPage() {
       nome: "X-bacon",
       ingredientes: ["Pão", "carne", "queijo", "bacon"],
       preco: 999,
-      categoria: "Burguer",
+      categoria: "Hamburguer",
       disponivel: true,
     },
     {
@@ -23,13 +23,26 @@ export default function CardapioPage() {
       nome: "X-abacaxi",
       ingredientes: ["Pão", "carne", "queijo", "abacaxi (sim...)"],
       preco: 1099,
-      categoria: "Tropical",
+      categoria: "Hamburguer",
       disponivel: false,
     },
   ]);
 
   const addProduct = (produto) => {
     setProdutos([...produtos, produto]);
+  };
+
+  const editProduct = (produto) => {
+    const novosProdutos = produtos.filter(
+      (produtoAntigo) => produto.id !== produtoAntigo.id
+    );
+    setProdutos([...novosProdutos, produto]);
+  };
+  const deleteProduct = (id) => {
+    const novosProdutos = produtos.filter(
+      (produtoAntigo) => id !== produtoAntigo.id
+    );
+    setProdutos([...novosProdutos]);
   };
 
   const handleClickOpen = (dialog) => {
@@ -58,7 +71,7 @@ export default function CardapioPage() {
         )}
         {open == "editar" && (
           <EditarProdutoDialog
-            addProduct={addProduct}
+            editProduct={editProduct}
             produtos={produtos}
             open={open == "editar"}
             handleClose={handleClose}
@@ -98,7 +111,12 @@ export default function CardapioPage() {
                 Editar
               </Button>
 
-              <Button sx={{ color: "red" }}>Excluir</Button>
+              <Button
+                sx={{ color: "red" }}
+                onClick={() => deleteProduct(produto.id)}
+              >
+                Excluir
+              </Button>
             </div>
           </div>
         ))}
