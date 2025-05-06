@@ -1,140 +1,204 @@
-import { useState } from "react";
-import CriarProdutoDialog from "./componentes/dialogs/CriarProduto";
-import "./styles.css";
-import { Button, Switch } from "@mui/material";
-import { red } from "@mui/material/colors";
-import EditarProdutoDialog from "./componentes/dialogs/EditarProduto";
-import { useNavigate } from "react-router-dom";
+import React, { useState } from "react";
+import {
+  Box,
+  Typography,
+  Card,
+  CardContent,
+  Button,
+  Checkbox,
+  FormControlLabel,
+  IconButton,
+  Accordion,
+  AccordionSummary,
+  AccordionDetails,
+} from "@mui/material";
+import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
+import AddIcon from "@mui/icons-material/Add";
+import RemoveIcon from "@mui/icons-material/Remove";
+
+const menu = {
+  mesa: 7,
+  categorias: [
+    {
+      nome: "Hambúrgueres",
+      produtos: [
+        {
+          nome: "X-Bacon",
+          ingredientes:
+            "pão de hambúrguer, hambúrguer bovino, queijo mussarela, bacon.",
+          preco: 9.99,
+        },
+        {
+          nome: "X-Egg-Bacon",
+          ingredientes:
+            "pão de hambúrguer, hambúrguer bovino, queijo mussarela, bacon, ovo.",
+          preco: 11.99,
+        },
+      ],
+    },
+    {
+      nome: "Carnes na Brasa",
+      produtos: [
+        {
+          nome: "Choripan",
+          ingredientes:
+            "legumes, queijo coalho com melado de cana e pão de alho cremoso.",
+          preco: 28.99,
+        },
+        {
+          nome: "Franbacon 400g",
+          ingredientes:
+            "peito de frango com bacon, mandioca, molho de mel e mostarda.",
+          preco: 48.99,
+        },
+        {
+          nome: "Mandioca 200g",
+          ingredientes: "Esses são complementos adicionais.",
+          preco: 14.99,
+        },
+      ],
+    },
+    {
+      nome: "Bebidas",
+      produtos: [
+        { nome: "Coca-Cola 350ml", ingredientes: "", preco: 7.99 },
+        { nome: "Fanta 350ml", ingredientes: "", preco: 6.99 },
+      ],
+    },
+  ],
+};
 
 export default function CardapioPage() {
-  const navigate = useNavigate();
-  const [open, setOpen] = useState(false);
-  const [produtos, setProdutos] = useState([
-    {
-      id: "ghjdfbghjsdbf1",
-      nome: "X-bacon",
-      ingredientes: ["Pão", "carne", "queijo", "bacon"],
-      preco: 999,
-      categoria: "Hamburguer",
-      disponivel: true,
-    },
-    {
-      id: "abacaxi1",
-      nome: "X-abacaxi",
-      ingredientes: ["Pão", "carne", "queijo", "abacaxi (sim...)"],
-      preco: 1099,
-      categoria: "Hamburguer",
-      disponivel: false,
-    },
-  ]);
+  const [quantidades, setQuantidades] = useState({});
 
-  const addProduct = (produto) => {
-    setProdutos([...produtos, produto]);
+  const alterarQuantidade = (produtoNome, delta) => {
+    setQuantidades((prev) => {
+      const atual = prev[produtoNome] || 0;
+      const novaQtd = Math.max(0, atual + delta);
+      return { ...prev, [produtoNome]: novaQtd };
+    });
   };
 
-  const editProduct = (produto) => {
-    const novosProdutos = produtos.map((produtoAntigo) =>
-      produtoAntigo.id === produto.id ? produto : produtoAntigo
-    );
-    setProdutos(novosProdutos);
-  };
-
-  const deleteProduct = (id) => {
-    const novosProdutos = produtos.filter(
-      (produtoAntigo) => id !== produtoAntigo.id
-    );
-    setProdutos([...novosProdutos]);
-  };
-
-  const handleStatus = (id) => {
-    const novosProdutos = produtos.map((produto) =>
-      produto.id === id
-        ? { ...produto, disponivel: !produto.disponivel }
-        : produto
-    );
-    setProdutos(novosProdutos);
-  };
-
-  const handleClickOpen = (dialog) => {
-    setOpen(dialog);
-  };
-
-  const handleClose = () => {
-    navigate(``);
-    setOpen(false);
-  };
-  const handleEditar = (id) => {
-    handleClickOpen("editar");
-    navigate(`?editar-produto=${id}`);
+  const calcularTotal = () => {
+    let total = 0;
+    menu.categorias.forEach((categoria) => {
+      categoria.produtos.forEach((produto) => {
+        const quantidade = quantidades[produto.nome] || 0;
+        total += quantidade * produto.preco;
+      });
+    });
+    return total;
   };
 
   return (
-    <div className="pagina-desktop">
-      <div className="topo">
-        <h1>Painel de Cardápio</h1>
-        {open == "criar" && (
-          <CriarProdutoDialog
-            addProduct={addProduct}
-            open={open == "criar"}
-            handleClose={handleClose}
-          />
-        )}
-        {open == "editar" && (
-          <EditarProdutoDialog
-            editProduct={editProduct}
-            produtos={produtos}
-            open={open == "editar"}
-            handleClose={handleClose}
-          />
-        )}
-        <Button variant="outlined" onClick={() => handleClickOpen("criar")}>
-          Criar Produto
-        </Button>
-      </div>
+    <Box
+      sx={{
+        position: "relative",
+        bgcolor: "#121212",
+        color: "#fff",
+        pb: 10,
+        minHeight: "100vh",
+      }}
+    >
+      <Typography variant="h5" gutterBottom sx={{ p: 2 }}>
+        Mesa: {menu.mesa}
+      </Typography>
 
-      <div className="grid-produtos">
-        {produtos.map((produto) => (
-          <div key={produto.id} className="card-produto">
-            <h2>{produto.nome}</h2>
-            <p className="categoria">{produto.categoria}</p>
-            <p className="preco">R$ {(produto.preco / 100).toFixed(2)}</p>
-            <p
-              className={`status ${produto.disponivel ? "disponivel" : "indisponivel"}`}
-            >
-              {produto.disponivel ? "Disponível" : "Indisponível"}{" "}
-              <Switch
-                checked={produto.disponivel}
-                onChange={() => handleStatus(produto.id)}
+      {menu.categorias.map((categoria) => (
+        <Accordion
+          key={categoria.nome}
+          defaultExpanded
+          sx={{ bgcolor: "#1e1e1e", color: "white" }}
+        >
+          <AccordionSummary
+            expandIcon={<ExpandMoreIcon sx={{ color: "white" }} />}
+          >
+            <Typography variant="h6" sx={{ color: "orange" }}>
+              {categoria.nome}
+            </Typography>
+          </AccordionSummary>
+          <AccordionDetails>
+            {categoria.produtos.map((produto) => (
+              <Card
+                key={produto.nome}
+                sx={{
+                  bgcolor: "#2c2c2c",
+                  color: "#fff",
+                  width: "100%",
+                  my: 2,
+                  borderRadius: 0,
+                }}
+              >
+                <CardContent>
+                  <Typography variant="subtitle1" fontWeight="bold">
+                    {produto.nome}
+                  </Typography>
+                  {produto.ingredientes && (
+                    <Typography variant="body2" sx={{ opacity: 0.8 }}>
+                      {produto.ingredientes}
+                    </Typography>
+                  )}
+                  <Box
+                    sx={{
+                      display: "flex",
+                      justifyContent: "space-between",
+                      alignItems: "center",
+                      mt: 2,
+                    }}
+                  >
+                    <Typography variant="body2" fontWeight="bold">
+                      R${produto.preco.toFixed(2)}
+                    </Typography>
+                    <Box sx={{ display: "flex", alignItems: "center" }}>
+                      <IconButton
+                        color="warning"
+                        size="small"
+                        onClick={() => alterarQuantidade(produto.nome, -1)}
+                      >
+                        <RemoveIcon />
+                      </IconButton>
+                      <Typography sx={{ mx: 1 }}>
+                        {quantidades[produto.nome] || 0}
+                      </Typography>
+                      <IconButton
+                        color="warning"
+                        size="small"
+                        onClick={() => alterarQuantidade(produto.nome, 1)}
+                      >
+                        <AddIcon />
+                      </IconButton>
+                    </Box>
+                  </Box>
+                </CardContent>
+              </Card>
+            ))}
+
+            {categoria.nome === "Bebidas" && (
+              <FormControlLabel
+                control={<Checkbox sx={{ color: "white" }} />}
+                label="Deseja receber junto com o prato principal?"
+                sx={{ mt: 2 }}
               />
-            </p>
+            )}
+          </AccordionDetails>
+        </Accordion>
+      ))}
 
-            <div className="ingredientes">
-              <p>Ingredientes:</p>
-              <ul>
-                {produto.ingredientes.map((item, i) => (
-                  <li key={i}>{item}</li>
-                ))}
-              </ul>
-            </div>
-
-            <div style={{ display: "flex", justifyContent: "space-between" }}>
-              <Button
-                variant="contained"
-                onClick={() => handleEditar(produto.id)}
-              >
-                Editar
-              </Button>
-
-              <Button
-                sx={{ color: "red" }}
-                onClick={() => deleteProduct(produto.id)}
-              >
-                Excluir
-              </Button>
-            </div>
-          </div>
-        ))}
-      </div>
-    </div>
+      <Box
+        sx={{
+          position: "fixed",
+          bottom: 0,
+          left: 0,
+          width: "100%",
+          bgcolor: "#1e1e1e",
+          p: 2,
+          borderTop: "1px solid #333",
+        }}
+      >
+        <Button variant="contained" color="warning" fullWidth>
+          Finalizar Pedido - Total: R${calcularTotal().toFixed(2)}
+        </Button>
+      </Box>
+    </Box>
   );
 }
