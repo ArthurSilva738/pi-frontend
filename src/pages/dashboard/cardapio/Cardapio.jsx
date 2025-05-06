@@ -1,7 +1,7 @@
 import { useState } from "react";
 import CriarProdutoDialog from "./componentes/dialogs/CriarProduto";
 import "./styles.css";
-import { Button } from "@mui/material";
+import { Button, Switch } from "@mui/material";
 import { red } from "@mui/material/colors";
 import EditarProdutoDialog from "./componentes/dialogs/EditarProduto";
 import { useNavigate } from "react-router-dom";
@@ -33,16 +33,26 @@ export default function CardapioPage() {
   };
 
   const editProduct = (produto) => {
-    const novosProdutos = produtos.filter(
-      (produtoAntigo) => produto.id !== produtoAntigo.id
+    const novosProdutos = produtos.map((produtoAntigo) =>
+      produtoAntigo.id === produto.id ? produto : produtoAntigo
     );
-    setProdutos([...novosProdutos, produto]);
+    setProdutos(novosProdutos);
   };
+
   const deleteProduct = (id) => {
     const novosProdutos = produtos.filter(
       (produtoAntigo) => id !== produtoAntigo.id
     );
     setProdutos([...novosProdutos]);
+  };
+
+  const handleStatus = (id) => {
+    const novosProdutos = produtos.map((produto) =>
+      produto.id === id
+        ? { ...produto, disponivel: !produto.disponivel }
+        : produto
+    );
+    setProdutos(novosProdutos);
   };
 
   const handleClickOpen = (dialog) => {
@@ -61,7 +71,7 @@ export default function CardapioPage() {
   return (
     <div className="pagina-desktop">
       <div className="topo">
-        <h1>🍔 Painel de Cardápio</h1>
+        <h1>Painel de Cardápio</h1>
         {open == "criar" && (
           <CriarProdutoDialog
             addProduct={addProduct}
@@ -91,7 +101,11 @@ export default function CardapioPage() {
             <p
               className={`status ${produto.disponivel ? "disponivel" : "indisponivel"}`}
             >
-              {produto.disponivel ? "Disponível" : "Indisponível"}
+              {produto.disponivel ? "Disponível" : "Indisponível"}{" "}
+              <Switch
+                checked={produto.disponivel}
+                onChange={() => handleStatus(produto.id)}
+              />
             </p>
 
             <div className="ingredientes">
